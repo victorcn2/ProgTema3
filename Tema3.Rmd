@@ -358,3 +358,29 @@ data(Salaries, package="carData")
         ggplotly(q)
         
 ```
+```{r}
+library(magrittr)
+library(ggplot2)
+if (!file.exists("data.csv")) {
+  file <- download.file("https://covid.ourworldindata.org/data/owid-covid-data.csv", "data.csv")
+}
+covid_data<- read.csv("data.csv")
+covid_data <- as.data.frame(covid_data)
+covid_data$date <- as.Date(covid_data$date, format = "%Y-%m-%d")
+paises <- c("Spain", "United States", "Italy", "Germany", "Portugal")
+covid_data <- subset(covid_data, location %in% paises)
+ggplot(covid_data, aes(x = date, y = new_deaths_smoothed_per_million, col = location, size = ifelse(location == "Spain", "Spain", "Otros países"))) +
+  geom_line() +
+  scale_color_manual(values = c("United States" = "blue", "Italy" = "red", "Germany" = "green", "Portugal" = "orange", "Spain" = "black")) +
+  scale_size_manual(values = c("Spain" = 1.25, "Otros países" = 0.7)) +
+  guides(size = FALSE) +
+  labs(title = "Daily new confirmed COVID-19 deaths per million people",
+       subtitle = "7-day rolling average. For some countries the number of confirmed deaths is much lower than the number of deaths. This is because of limited testing and challenges in the attribution of the cause of death.",
+       x = "Fecha",
+       y = "Muertes por millón de habitantes") +
+  scale_x_date(date_labels = "%Y-%m-%d") +
+  theme(axis.text.x = element_text(angle = 0, vjust = 0.5, hjust=0.25)) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", family = "Arial", size = 24),
+        plot.subtitle = element_text(hjust = 0.5, size = 12))
+```
+
